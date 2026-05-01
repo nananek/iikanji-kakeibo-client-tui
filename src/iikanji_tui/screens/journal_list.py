@@ -73,6 +73,9 @@ class JournalListScreen(Screen):
         Binding("G", "last_page", "末尾"),
         Binding("n", "next_page", "次"),
         Binding("p", "prev_page", "前"),
+        Binding("a", "new_entry", "新規"),
+        Binding("c", "copy_entry", "複写"),
+        Binding("d", "delete_entry", "削除"),
         Binding("q", "app.quit", "終了"),
     ]
 
@@ -219,3 +222,79 @@ class JournalListScreen(Screen):
             self.search_query = event.value
             self._render_rows()
             self._update_status()
+
+    # --- CRUD ---
+
+    def _selected_journal(self) -> dict | None:
+        """カーソル行に対応する journal dict を返す"""
+        table = self.query_one("#journals", DataTable)
+        if table.row_count == 0:
+            return None
+        try:
+            row_key = table.coordinate_to_cell_key(table.cursor_coordinate).row_key
+        except Exception:
+            return None
+        target_id = row_key.value if hasattr(row_key, "value") else str(row_key)
+        if target_id is None:
+            return None
+        for j in self._all_journals:
+            if str(j.get("id")) == str(target_id):
+                return j
+        return None
+
+    def action_new_entry(self) -> None:
+        from iikanji_tui.screens.journal_edit import (
+            JournalEditScreen, JournalDraft,
+        )
+        self.app.push_screen(
+            JournalEditScreen(self.api, JournalDraft.empty(), mode="new"),
+            self._after_save,
+        )
+
+    def action_copy_entry(self) -> None:
+        from iikanji_tui.screens.journal_edit import (
+            JournalEditScreen, JournalDraft,
+        )
+        target = self._selected_journal()
+        if target is None:
+            self._set_status("複写対象の仕訳が選択されていません。")
+            return
+        draft = JournalDraft.from_journal(target, copy=True)
+        self.app.push_screen(
+            JournalEditScreen(self.api, draft, mode="copy"),
+            self._after_save,
+        )
+
+    def action_delete_entry(self) -> None:
+        from iikanji_tui.screens.confirm import ConfirmScreen
+        target = self._selected_journal()
+        if target is None:
+            self._set_status("削除対象の仕訳が選択されていません。")
+            return
+        entry_id = target.get("id")
+        message = (
+            f"伝票 #{target.get('entry_number')} ({target.get('date')} "
+            f"{target.get('description', '')}) を削除しますか？"
+        )
+
+        def _confirmed(yes: bool | None) -> None:
+            if not yes or entry_id is None:
+                return
+            try:
+                self.api.delete_journal(int(entry_id))
+            except APIError as e:
+                self._set_status(f"削除失敗: {e.message}")
+                return
+            self._set_status(f"伝票 #{target.get('entry_number')} を削除しました。")
+            self.run_worker(self.load_page(), exclusive=True)
+
+        self.app.push_screen(ConfirmScreen(message), _confirmed)
+
+    def _after_save(self, result: dict | None) -> None:
+        """新規/複写モーダルの完了コールバック"""
+        if not result:
+            return
+        entry_number = result.get("entry_number")
+        if entry_number:
+            self._set_status(f"伝票 #{entry_number} を作成しました。")
+        self.run_worker(self.load_page(), exclusive=True)

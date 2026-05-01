@@ -35,6 +35,7 @@ class VouchersScreen(Screen):
         Binding("escape", "close_or_clear", "戻る"),
         Binding("n", "next_page", "次"),
         Binding("p", "prev_page", "前"),
+        Binding("enter", "preview", "プレビュー"),
         Binding("v", "verify", "検証"),
         Binding("s", "save", "保存"),
         Binding("o", "open_external", "外部表示"),
@@ -173,6 +174,24 @@ class VouchersScreen(Screen):
         if self.page > 1:
             self.page -= 1
             self.run_worker(self.load_page(), exclusive=True)
+
+    def action_preview(self) -> None:
+        from iikanji_tui.screens.image_preview import ImagePreviewScreen
+        target = self._selected_voucher()
+        if target is None:
+            self._set_status("対象の証憑が選択されていません。")
+            return
+        try:
+            data = self.api.get_voucher_image(int(target["id"]))
+        except APIError as e:
+            self._set_status(f"取得失敗: {e.message}")
+            return
+        j = target.get("journal") or {}
+        title = (
+            f"{j.get('date', '')} {j.get('description', '')} "
+            f"(id={target['id']})"
+        )
+        self.app.push_screen(ImagePreviewScreen(data, title=title))
 
     def action_verify(self) -> None:
         target = self._selected_voucher()

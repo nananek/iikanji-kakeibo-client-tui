@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import os
 
-import pytest
-
 from iikanji_tui.config import (
-    Config, load_config, save_config, clear_config, default_config_path,
+    Config,
+    clear_config,
+    default_config_path,
+    load_config,
+    save_config,
 )
 
 

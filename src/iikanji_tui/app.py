@@ -5,7 +5,7 @@ from __future__ import annotations
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Vertical
-from textual.widgets import Header, Footer, Static
+from textual.widgets import Footer, Header, Static
 
 from iikanji_tui.api import APIClient
 from iikanji_tui.config import Config, load_config

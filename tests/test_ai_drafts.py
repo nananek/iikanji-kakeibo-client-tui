@@ -67,8 +67,9 @@ def _make_app(drafts: list[dict]):
 class TestAIDraftsScreenLoad:
     @pytest.mark.asyncio
     async def test_loads_drafts_on_mount(self):
-        from iikanji_tui.screens.ai_drafts import AIDraftsScreen
         from textual.widgets import DataTable
+
+        from iikanji_tui.screens.ai_drafts import AIDraftsScreen
         app, api = _make_app([_draft_summary(1), _draft_summary(2)])
         async with app.run_test() as pilot:
             await pilot.pause()
@@ -83,8 +84,9 @@ class TestAIDraftsScreenLoad:
 
     @pytest.mark.asyncio
     async def test_load_error_shown_in_status(self):
-        from iikanji_tui.screens.ai_drafts import AIDraftsScreen
         from textual.widgets import Static
+
+        from iikanji_tui.screens.ai_drafts import AIDraftsScreen
         app, api = _make_app([])
         api.list_drafts.side_effect = APIError(401, "認証失敗")
         async with app.run_test() as pilot:
@@ -201,8 +203,9 @@ class TestDeleteDraft:
 class TestUploadScreen:
     @pytest.mark.asyncio
     async def test_validates_file_path(self, tmp_path):
-        from iikanji_tui.screens.upload import UploadScreen
         from textual.widgets import Static
+
+        from iikanji_tui.screens.upload import UploadScreen
         app, api = _make_app([])
         async with app.run_test() as pilot:
             await pilot.pause()
@@ -218,8 +221,9 @@ class TestUploadScreen:
 
     @pytest.mark.asyncio
     async def test_calls_analyze_when_file_exists(self, tmp_path):
-        from iikanji_tui.screens.upload import UploadScreen
         from textual.widgets import Input
+
+        from iikanji_tui.screens.upload import UploadScreen
         img = tmp_path / "receipt.jpg"
         img.write_bytes(b"fake")
 
@@ -244,8 +248,9 @@ class TestUploadScreen:
 class TestDetailScreen:
     @pytest.mark.asyncio
     async def test_loads_suggestions(self):
-        from iikanji_tui.screens.ai_detail import AIDraftDetailScreen
         from textual.widgets import DataTable, Static
+
+        from iikanji_tui.screens.ai_detail import AIDraftDetailScreen
         app, api = _make_app([])
         api.get_draft.return_value = {
             "ok": True,
@@ -269,8 +274,9 @@ class TestDetailScreen:
 
     @pytest.mark.asyncio
     async def test_next_suggestion_cycles(self):
-        from iikanji_tui.screens.ai_detail import AIDraftDetailScreen
         from textual.widgets import Static
+
+        from iikanji_tui.screens.ai_detail import AIDraftDetailScreen
         app, api = _make_app([])
         api.get_draft.return_value = {
             "ok": True,

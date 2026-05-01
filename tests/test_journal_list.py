@@ -8,7 +8,9 @@ import pytest
 
 from iikanji_tui.api import APIClient, APIError
 from iikanji_tui.screens.journal_list import (
-    JournalListScreen, filter_journals, summarize_lines, PER_PAGE,
+    PER_PAGE,
+    filter_journals,
+    summarize_lines,
 )
 
 
@@ -212,6 +214,7 @@ class TestScreen:
     @pytest.mark.asyncio
     async def test_api_error_displayed_in_status(self):
         from textual.widgets import Static
+
         from iikanji_tui.app import IikanjiTUI
         from iikanji_tui.config import Config
 

@@ -9,17 +9,13 @@ DataTable で /api/v1/journals の結果を表示する。
 
 from __future__ import annotations
 
-from datetime import date
-from typing import Any
-
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal, Vertical
+from textual.containers import Horizontal
 from textual.screen import Screen
 from textual.widgets import DataTable, Footer, Header, Input, Static
 
 from iikanji_tui.api import APIClient, APIError
-
 
 PER_PAGE = 50
 
@@ -246,7 +242,8 @@ class JournalListScreen(Screen):
 
     def action_new_entry(self) -> None:
         from iikanji_tui.screens.journal_edit import (
-            JournalEditScreen, JournalDraft,
+            JournalDraft,
+            JournalEditScreen,
         )
         self.app.push_screen(
             JournalEditScreen(self.api, JournalDraft.empty(), mode="new"),
@@ -255,7 +252,8 @@ class JournalListScreen(Screen):
 
     def action_copy_entry(self) -> None:
         from iikanji_tui.screens.journal_edit import (
-            JournalEditScreen, JournalDraft,
+            JournalDraft,
+            JournalEditScreen,
         )
         target = self._selected_journal()
         if target is None:

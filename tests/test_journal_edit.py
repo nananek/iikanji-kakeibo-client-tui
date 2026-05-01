@@ -9,7 +9,9 @@ import pytest
 
 from iikanji_tui.api import APIClient, APIError
 from iikanji_tui.screens.journal_edit import (
-    JournalDraft, JournalEditScreen, _parse_int,
+    JournalDraft,
+    JournalEditScreen,
+    _parse_int,
 )
 
 

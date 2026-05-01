@@ -8,7 +8,6 @@ import respx
 
 from iikanji_tui.api import APIClient, APIError
 
-
 BASE = "https://example.com"
 
 

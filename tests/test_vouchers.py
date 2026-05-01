@@ -51,8 +51,9 @@ def _make_app(vouchers: list[dict], **overrides):
 class TestLoad:
     @pytest.mark.asyncio
     async def test_loads_on_mount(self):
-        from iikanji_tui.screens.vouchers import VouchersScreen
         from textual.widgets import DataTable
+
+        from iikanji_tui.screens.vouchers import VouchersScreen
         app, api = _make_app([_voucher(1), _voucher(2)])
         async with app.run_test() as pilot:
             await pilot.pause()
@@ -211,7 +212,6 @@ class TestSave:
 class TestOpenExternal:
     @pytest.mark.asyncio
     async def test_open_calls_opener(self):
-        from iikanji_tui.screens.vouchers import VouchersScreen
         opened = []
         def fake_opener(path):
             opened.append(path)

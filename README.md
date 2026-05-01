@@ -8,6 +8,23 @@
 pip install -e .
 ```
 
+### Docker での利用
+
+```bash
+# ビルド
+docker build -t iikanji-tui .
+
+# ログイン (設定は ~/.config/iikanji にホスト側ボリュームで永続化)
+docker run --rm -it \
+  -v "$HOME/.config/iikanji:/config/iikanji" \
+  iikanji-tui login --api-url https://your-server.tailnet.ts.net
+
+# TUI 起動
+docker run --rm -it \
+  -v "$HOME/.config/iikanji:/config/iikanji" \
+  iikanji-tui
+```
+
 ## 使い方
 
 ### ログイン

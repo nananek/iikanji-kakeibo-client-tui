@@ -11,10 +11,12 @@ import httpx
 class APIError(Exception):
     """API 呼び出しのエラー"""
 
-    def __init__(self, status_code: int, message: str):
+    def __init__(self, status_code: int, message: str, *, error_code: str | None = None):
         super().__init__(message)
         self.status_code = status_code
         self.message = message
+        # OAuth 形式エラーコード (例: authorization_pending, slow_down)
+        self.error_code = error_code
 
 
 @dataclass
@@ -50,12 +52,15 @@ class APIClient:
                 json=json, params=params, data=data, files=files,
             )
         if resp.status_code >= 400:
+            error_code: str | None = None
             try:
                 payload = resp.json()
                 msg = payload.get("error") or str(payload)
+                if isinstance(payload, dict) and isinstance(payload.get("error"), str):
+                    error_code = payload["error"]
             except Exception:
                 msg = resp.text
-            raise APIError(resp.status_code, msg)
+            raise APIError(resp.status_code, msg, error_code=error_code)
         if resp.headers.get("content-type", "").startswith("application/json"):
             return resp.json()
         return resp.content

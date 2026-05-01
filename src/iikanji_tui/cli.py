@@ -6,6 +6,7 @@ import sys
 
 import click
 
+from iikanji_tui.auth import perform_device_flow
 from iikanji_tui.config import (
     Config, load_config, save_config, clear_config, default_config_path,
 )
@@ -31,13 +32,16 @@ def run() -> None:
 
 @main.command()
 @click.option("--api-url", prompt="サーバーURL", help="API ベース URL")
-def login(api_url: str) -> None:
+@click.option("--no-qr", is_flag=True, help="QR コード表示を抑制する")
+@click.option("--no-browser", is_flag=True, help="ブラウザの自動起動を抑制する")
+def login(api_url: str, no_qr: bool, no_browser: bool) -> None:
     """OAuth Device Flow でログインする"""
-    # Phase 2 で実装
-    from iikanji_tui.auth import perform_device_flow
-
     try:
-        token = perform_device_flow(api_url.rstrip("/"))
+        token = perform_device_flow(
+            api_url.rstrip("/"),
+            show_qr=not no_qr,
+            open_browser=not no_browser,
+        )
     except KeyboardInterrupt:
         click.echo("\nキャンセルしました。")
         sys.exit(1)

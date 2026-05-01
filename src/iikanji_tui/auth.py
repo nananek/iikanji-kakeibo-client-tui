@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 import time
 import webbrowser
 
@@ -10,11 +11,24 @@ import click
 from iikanji_tui.api import APIClient, APIError
 
 
+def render_qr_ascii(data: str) -> str:
+    """文字列を QR コードの ASCII アートとして返す（端末表示用）。"""
+    import qrcode
+
+    qr = qrcode.QRCode(border=1)
+    qr.add_data(data)
+    qr.make(fit=True)
+    buf = io.StringIO()
+    qr.print_ascii(out=buf, invert=True)
+    return buf.getvalue()
+
+
 def perform_device_flow(
     api_url: str,
     client_name: str = "iikanji-tui",
     *,
     open_browser: bool = True,
+    show_qr: bool = True,
     out=None,
     sleep=time.sleep,
 ) -> str:
@@ -50,7 +64,15 @@ def perform_device_flow(
     _echo(f"  Code: {user_code}")
     _echo()
     _echo(f"または直接アクセス: {verification_complete}")
-    _echo()
+    if show_qr:
+        try:
+            qr_art = render_qr_ascii(verification_complete)
+        except Exception:
+            qr_art = ""
+        if qr_art:
+            _echo()
+            _echo("PWA ログイン済みのスマホで以下の QR を読み取ってください:")
+            _echo(qr_art)
     _echo("承認を待っています... (Ctrl+C でキャンセル)")
 
     if open_browser:
@@ -65,25 +87,17 @@ def perform_device_flow(
         try:
             token_resp = client.oauth_token(device_code)
         except APIError as e:
-            error_code = _extract_error(e)
-            if error_code == "authorization_pending":
+            code = e.error_code or e.message.strip()
+            if code == "authorization_pending":
                 continue
-            if error_code == "slow_down":
+            if code == "slow_down":
                 interval += 5
                 continue
-            if error_code == "access_denied":
+            if code == "access_denied":
                 raise click.ClickException("接続が拒否されました。")
-            if error_code == "expired_token":
+            if code == "expired_token":
                 raise click.ClickException("コードが期限切れです。再度実行してください。")
             raise click.ClickException(f"認証エラー: {e.message}")
         return token_resp["access_token"]
 
     raise click.ClickException("タイムアウトしました。再度実行してください。")
-
-
-def _extract_error(err: APIError) -> str:
-    """APIError のメッセージから OAuth エラーコードを取り出す"""
-    msg = err.message.strip()
-    # サーバーは {"error": "authorization_pending"} を返すので
-    # APIClient で error フィールドが取り出される
-    return msg

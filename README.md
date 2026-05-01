@@ -10,11 +10,24 @@ pip install -e .
 
 ## 使い方
 
+### ログイン
+
+```bash
+iikanji-tui login --api-url https://your-server.tailnet.ts.net
+```
+
+OAuth Device Flow でブラウザ認証します。ターミナルに QR コードが表示されるので、
+PWA ログイン済みのスマートフォンでスキャンして承認することもできます。
+
+オプション:
+- `--no-qr`: QR コード表示を抑制
+- `--no-browser`: ブラウザ自動起動を抑制
+
+### TUI 起動
+
 ```bash
 iikanji-tui
 ```
-
-初回起動時、サーバーURL を尋ねられた後、OAuth Device Flow でブラウザ認証します。
 
 ## 設定ファイル
 

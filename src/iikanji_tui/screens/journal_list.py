@@ -77,6 +77,7 @@ class JournalListScreen(Screen):
         Binding("c", "copy_entry", "複写"),
         Binding("d", "delete_entry", "削除"),
         Binding("i", "open_ai", "AI"),
+        Binding("v", "open_vouchers", "証憑"),
         Binding("q", "app.quit", "終了"),
     ]
 
@@ -303,3 +304,7 @@ class JournalListScreen(Screen):
     def action_open_ai(self) -> None:
         from iikanji_tui.screens.ai_drafts import AIDraftsScreen
         self.app.push_screen(AIDraftsScreen(self.api))
+
+    def action_open_vouchers(self) -> None:
+        from iikanji_tui.screens.vouchers import VouchersScreen
+        self.app.push_screen(VouchersScreen(self.api))

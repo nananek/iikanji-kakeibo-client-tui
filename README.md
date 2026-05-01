@@ -88,10 +88,10 @@ alias iikanji-tui='docker run --rm -it \
 
 #### よくある落とし穴
 
-- **ボリューム権限**: コンテナ内ユーザは uid=1000。ホスト側ユーザの uid が
-  異なると `~/.config/iikanji` への書き込みでパーミッションエラーになる
-  ことがあります。`chown -R 1000:1000 ~/.config/iikanji` で揃えるか、
-  `--user "$(id -u):$(id -g)"` を渡してください。
+- **ボリューム権限**: エントリーポイントが `/config` の所有 UID/GID を検出して
+  `gosu` で同じ UID にドロップしてから実行するので、通常は調整不要です。
+  ホスト側でファイルを参照すると元の所有者で見えます。
+  `--user` を渡せばその UID で動作します。
 - **Tailscale 経由**: macOS/Windows の Docker Desktop はホストの Tailnet を
   そのまま参照できないため、Tailscale を別途コンテナ内に入れるか、
   ホスト側で `iikanji-tui` をネイティブ実行してください。

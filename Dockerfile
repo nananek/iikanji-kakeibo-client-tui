@@ -20,20 +20,22 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     XDG_CONFIG_HOME=/config \
+    HOME=/config \
     TERM=xterm-256color
 
-# 非 root ユーザーで実行
-RUN groupadd --gid 1000 iikanji && \
-    useradd --uid 1000 --gid iikanji --shell /bin/bash --create-home iikanji && \
-    mkdir -p /config && chown -R iikanji:iikanji /config
+# gosu: マウントされた /config の所有 UID に動的に合わせるためのドロップユーティリティ
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gosu \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /config
 
 COPY --from=builder /wheels /wheels
 RUN pip install --no-cache-dir /wheels/*.whl && rm -rf /wheels
 
-USER iikanji
-WORKDIR /home/iikanji
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 VOLUME ["/config"]
 
-ENTRYPOINT ["iikanji-tui"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD []

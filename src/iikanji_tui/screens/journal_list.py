@@ -76,6 +76,7 @@ class JournalListScreen(Screen):
         Binding("a", "new_entry", "新規"),
         Binding("c", "copy_entry", "複写"),
         Binding("d", "delete_entry", "削除"),
+        Binding("i", "open_ai", "AI"),
         Binding("q", "app.quit", "終了"),
     ]
 
@@ -298,3 +299,7 @@ class JournalListScreen(Screen):
         if entry_number:
             self._set_status(f"伝票 #{entry_number} を作成しました。")
         self.run_worker(self.load_page(), exclusive=True)
+
+    def action_open_ai(self) -> None:
+        from iikanji_tui.screens.ai_drafts import AIDraftsScreen
+        self.app.push_screen(AIDraftsScreen(self.api))

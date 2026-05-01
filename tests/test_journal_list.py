@@ -33,6 +33,27 @@ def _journal(id: int, date: str = "2026-01-15",
     }
 
 
+class TestStringAmounts:
+    """API が金額を文字列で返すケース（実 server の挙動）"""
+
+    def test_string_amounts_dont_raise(self):
+        # 文字列で返ってきた金額でも例外を起こさない（過去のバグ再発防止）
+        debit, credit, total = summarize_lines([
+            {"account_code": "5010", "debit": "1000", "credit": "0"},
+            {"account_code": "1010", "debit": "0", "credit": "1000"},
+        ])
+        assert debit == "5010"
+        assert credit == "1010"
+        assert total == 1000
+
+    def test_empty_string_amount(self):
+        debit, credit, total = summarize_lines([
+            {"account_code": "5010", "debit": "", "credit": ""},
+            {"account_code": "1010", "debit": "100", "credit": "0"},
+        ])
+        assert total == 100
+
+
 class TestSummarizeLines:
     def test_simple_two_line(self):
         debit, credit, total = summarize_lines([

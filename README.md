@@ -166,10 +166,21 @@ iikanji-tui logout   # 設定を削除
 | キー | 動作 |
 |------|------|
 | `/` | 摘要検索 |
+| `Enter` | インライン画像プレビュー (kitty graphics / sixel / unicode 自動切替) |
 | `v` | ハッシュ検証 |
 | `s` | 画像をローカル保存 (~/Downloads) |
 | `o` | 外部ビューアで開く |
-| `Esc` | 検索クリア / 戻る |
+| `Esc` | プレビューを閉じる / 検索クリア / 戻る |
+
+#### インライン画像プレビュー対応端末
+
+[textual-image](https://github.com/lnqs/textual-image) が自動判定:
+
+- **Kitty graphics protocol** (高画質): Kitty / WezTerm / Ghostty
+- **Sixel** (高画質): foot / mlterm / xterm (sixel ビルド) / WezTerm / mintty
+- **Unicode half-block** (低画質フォールバック): その他の端末
+
+実用的には Kitty / WezTerm / foot がオススメ。
 
 ## 設定ファイル
 

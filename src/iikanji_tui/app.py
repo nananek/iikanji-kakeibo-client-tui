@@ -7,7 +7,12 @@ from textual.binding import Binding
 from textual.containers import Container, Vertical
 from textual.widgets import Header, Footer, Static
 
+from iikanji_tui.api import APIClient
 from iikanji_tui.config import Config, load_config
+
+
+class WelcomeScreen(App):
+    pass
 
 
 class IikanjiTUI(App):
@@ -30,9 +35,20 @@ class IikanjiTUI(App):
     TITLE = "いいかんじ™家計簿"
     SUB_TITLE = "TUI クライアント"
 
-    def __init__(self, config: Config | None = None, **kwargs):
+    def __init__(self, config: Config | None = None,
+                 api: APIClient | None = None, **kwargs):
         super().__init__(**kwargs)
         self.config = config or load_config()
+        self._api = api
+
+    @property
+    def api(self) -> APIClient:
+        if self._api is None:
+            self._api = APIClient(
+                base_url=self.config.api_url,
+                access_token=self.config.access_token,
+            )
+        return self._api
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -41,8 +57,7 @@ class IikanjiTUI(App):
                 if self.config.is_authenticated():
                     yield Static(
                         f"接続先: [b]{self.config.api_url}[/b]\n"
-                        f"認証済み (token: {self.config.access_token[:11]}...)\n\n"
-                        "Phase 3 以降で仕訳一覧などを実装します。",
+                        f"認証済み (token: {self.config.access_token[:11]}...)",
                         id="status",
                     )
                 else:
@@ -53,5 +68,13 @@ class IikanjiTUI(App):
                     )
         yield Footer()
 
+    def on_mount(self) -> None:
+        if self.config.is_authenticated():
+            from iikanji_tui.screens.journal_list import JournalListScreen
+            self.push_screen(JournalListScreen(self.api))
+
     def action_help(self) -> None:
-        self.notify("q: 終了 / ?: このヘルプ", title="ヘルプ")
+        self.notify(
+            "q: 終了 / r: 更新 / /: 検索 / n,p: ページ / g,G: 先頭・末尾",
+            title="ヘルプ",
+        )

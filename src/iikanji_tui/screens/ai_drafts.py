@@ -15,6 +15,7 @@ from textual.screen import Screen
 from textual.widgets import DataTable, Footer, Header, Static
 
 from iikanji_tui.api import APIClient, APIError
+from iikanji_tui.screens.journal_list import _amount
 
 
 class AIDraftsScreen(Screen):
@@ -85,7 +86,7 @@ class AIDraftsScreen(Screen):
         table.clear()
         for d in self._drafts:
             summary = d.get("summary") or {}
-            amount = summary.get("amount", 0)
+            amount = _amount(summary.get("amount"))
             table.add_row(
                 d.get("created_at", "")[:16].replace("T", " "),
                 d.get("status", ""),

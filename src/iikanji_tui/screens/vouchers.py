@@ -23,6 +23,7 @@ from textual.screen import Screen
 from textual.widgets import DataTable, Footer, Header, Input, Static
 
 from iikanji_tui.api import APIClient, APIError
+from iikanji_tui.screens.journal_list import _amount
 
 PER_PAGE = 50
 
@@ -102,7 +103,7 @@ class VouchersScreen(Screen):
             j = v.get("journal") or {}
             uploaded = (v.get("uploaded_at") or "")[:16].replace("T", " ")
             deadline = "⚠" if v.get("deadline_exceeded") else ""
-            amount = j.get("amount", 0)
+            amount = _amount(j.get("amount"))
             table.add_row(
                 j.get("date", "") or "-",
                 j.get("description", "") or "-",

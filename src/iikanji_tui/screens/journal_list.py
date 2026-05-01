@@ -9,6 +9,8 @@ DataTable で /api/v1/journals の結果を表示する。
 
 from __future__ import annotations
 
+from typing import Any
+
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal
@@ -20,15 +22,28 @@ from iikanji_tui.api import APIClient, APIError
 PER_PAGE = 50
 
 
+def _amount(value: Any) -> int:
+    """API レスポンスの金額（str / int / Decimal）を安全に int に変換"""
+    if value is None or value == "":
+        return 0
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        try:
+            return int(float(value))
+        except (TypeError, ValueError):
+            return 0
+
+
 def summarize_lines(lines: list[dict]) -> tuple[str, str, int]:
     """明細から (借方科目コード, 貸方科目コード, 金額) を要約する"""
     debit_codes = [
-        l.get("account_code", "") for l in lines if (l.get("debit") or 0) > 0
+        l.get("account_code", "") for l in lines if _amount(l.get("debit")) > 0
     ]
     credit_codes = [
-        l.get("account_code", "") for l in lines if (l.get("credit") or 0) > 0
+        l.get("account_code", "") for l in lines if _amount(l.get("credit")) > 0
     ]
-    total = sum(int(l.get("debit") or 0) for l in lines)
+    total = sum(_amount(l.get("debit")) for l in lines)
 
     def _fmt(codes: list[str]) -> str:
         if not codes:

@@ -142,7 +142,7 @@ class AIDraftsScreen(Screen):
         if target is None:
             self._set_status("対象の下書きが選択されていません。")
             return
-        draft_id = int(target.get("id"))
+        draft_id = int(target.get("id") or 0)
         try:
             detail = self.api.get_draft(draft_id)
         except APIError as e:
@@ -199,7 +199,7 @@ class AIDraftsScreen(Screen):
         if target is None:
             self._set_status("対象の下書きが選択されていません。")
             return
-        draft_id = int(target.get("id"))
+        draft_id = int(target.get("id") or 0)
         message = f"下書き #{draft_id} を削除しますか？"
 
         def _confirmed(yes: bool | None) -> None:

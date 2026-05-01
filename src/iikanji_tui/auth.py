@@ -94,10 +94,12 @@ def perform_device_flow(
                 interval += 5
                 continue
             if code == "access_denied":
-                raise click.ClickException("接続が拒否されました。")
+                raise click.ClickException("接続が拒否されました。") from e
             if code == "expired_token":
-                raise click.ClickException("コードが期限切れです。再度実行してください。")
-            raise click.ClickException(f"認証エラー: {e.message}")
+                raise click.ClickException(
+                    "コードが期限切れです。再度実行してください。"
+                ) from e
+            raise click.ClickException(f"認証エラー: {e.message}") from e
         return token_resp["access_token"]
 
     raise click.ClickException("タイムアウトしました。再度実行してください。")

@@ -88,7 +88,7 @@ class APIClient:
 
     def list_journals(self, page: int = 1, per_page: int = 20,
                       date_from: str | None = None, date_to: str | None = None) -> dict:
-        params = {"page": page, "per_page": per_page}
+        params: dict[str, Any] = {"page": page, "per_page": per_page}
         if date_from:
             params["date_from"] = date_from
         if date_to:

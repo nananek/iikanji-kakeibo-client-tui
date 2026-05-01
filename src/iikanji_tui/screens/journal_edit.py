@@ -9,13 +9,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date as date_cls
-from typing import Any
 
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
 from textual.screen import ModalScreen
-from textual.validation import Validator, ValidationResult
 from textual.widgets import Button, Input, Label, Static
 
 from iikanji_tui.api import APIClient, APIError
@@ -31,7 +29,7 @@ class JournalDraft:
     entry_id: int | None = None  # 編集時のみ
 
     @classmethod
-    def empty(cls, today: date_cls | None = None) -> "JournalDraft":
+    def empty(cls, today: date_cls | None = None) -> JournalDraft:
         d = (today or date_cls.today()).isoformat()
         return cls(
             date=d,
@@ -43,7 +41,7 @@ class JournalDraft:
         )
 
     @classmethod
-    def from_journal(cls, journal: dict, *, copy: bool = False) -> "JournalDraft":
+    def from_journal(cls, journal: dict, *, copy: bool = False) -> JournalDraft:
         """既存仕訳を JournalDraft に変換する。copy=True なら新規モード（id を破棄、日付は今日に）"""
         lines = [
             {
@@ -61,11 +59,12 @@ class JournalDraft:
                 lines=lines,
                 entry_id=None,
             )
+        entry_id_raw = journal.get("id")
         return cls(
             date=journal.get("date", "") or "",
             description=journal.get("description", "") or "",
             lines=lines,
-            entry_id=int(journal.get("id")) if journal.get("id") else None,
+            entry_id=int(entry_id_raw) if entry_id_raw is not None else None,
         )
 
     def total_debit(self) -> int:

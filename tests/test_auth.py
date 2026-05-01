@@ -11,7 +11,6 @@ import respx
 
 from iikanji_tui.auth import perform_device_flow
 
-
 BASE = "https://example.com"
 
 
@@ -193,6 +192,7 @@ class TestLoginCommand:
         monkeypatch.setattr("webbrowser.open", lambda *a, **k: True)
 
         from click.testing import CliRunner
+
         from iikanji_tui.cli import main
 
         runner = CliRunner()

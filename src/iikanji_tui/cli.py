@@ -8,7 +8,10 @@ import click
 
 from iikanji_tui.auth import perform_device_flow
 from iikanji_tui.config import (
-    Config, load_config, save_config, clear_config, default_config_path,
+    clear_config,
+    default_config_path,
+    load_config,
+    save_config,
 )
 
 

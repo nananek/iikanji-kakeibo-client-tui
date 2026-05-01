@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Button, Label
+
+ButtonVariant = Literal["default", "primary", "success", "warning", "error"]
 
 
 class ConfirmScreen(ModalScreen[bool]):
@@ -37,7 +41,7 @@ class ConfirmScreen(ModalScreen[bool]):
 
     def __init__(self, message: str, *,
                  confirm_label: str = "削除",
-                 confirm_variant: str = "error", **kwargs):
+                 confirm_variant: ButtonVariant = "error", **kwargs):
         super().__init__(**kwargs)
         self.message = message
         self.confirm_label = confirm_label

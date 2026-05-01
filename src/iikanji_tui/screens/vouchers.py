@@ -24,7 +24,6 @@ from textual.widgets import DataTable, Footer, Header, Input, Static
 
 from iikanji_tui.api import APIClient, APIError
 
-
 PER_PAGE = 50
 
 

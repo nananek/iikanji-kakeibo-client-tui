@@ -1,0 +1,29 @@
+name: バグ報告
+description: 不具合を報告する
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: 何が起きましたか?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 再現手順
+  - type: input
+    id: version
+    attributes:
+      label: バージョン
+      placeholder: v0.1.0
+  - type: dropdown
+    id: terminal
+    attributes:
+      label: ターミナル
+      options:
+        - GNOME Terminal
+        - iTerm2
+        - WezTerm
+        - Windows Terminal
+        - その他

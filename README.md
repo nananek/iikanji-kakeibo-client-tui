@@ -205,4 +205,9 @@ mypy src/               # 型チェック
 
 ## ライセンス
 
-[いいかんじ™ライセンス (IKL) v1.0](LICENSE) — MIT 互換。
+[MIT License](LICENSE) — Copyright (c) 2026- nananek
+
+この TUI クライアントは MIT License で配布されており、本サーバー
+(`iikanji-kakeibo`) 向け以外の用途や、独自のフォーク・改変・再配布も自由です。
+サーバー本体は Sustainable Use License v1.0 で配布されていますが、本クライアント
+側にはその制限は伝染しません。

@@ -223,6 +223,7 @@ class TestUploadScreen:
     async def test_calls_analyze_when_file_exists(self, tmp_path):
         from textual.widgets import Input
 
+        from iikanji_tui.config import Config
         from iikanji_tui.screens.upload import UploadScreen
         img = tmp_path / "receipt.jpg"
         img.write_bytes(b"fake")
@@ -231,10 +232,15 @@ class TestUploadScreen:
         api.analyze_image.return_value = {
             "ok": True, "draft_id": 11, "suggestions": [],
         }
+        # E2 PR-D-c: UploadScreen は config から LLM API キーを読む必要がある
+        config = Config(
+            api_url="https://test", access_token="t",
+            ai_provider="openai", openai_api_key="sk-test",
+        )
         async with app.run_test() as pilot:
             await pilot.pause()
             await pilot.pause()
-            screen = UploadScreen(api)
+            screen = UploadScreen(api, config=config)
             await app.push_screen(screen)
             await pilot.pause()
             screen.query_one("#path", Input).value = str(img)
@@ -243,6 +249,39 @@ class TestUploadScreen:
             await pilot.pause()
             await pilot.pause()
             api.analyze_image.assert_called_once()
+            # provider / llm_api_key 引数が渡っている
+            kwargs = api.analyze_image.call_args.kwargs
+            assert kwargs["provider"] == "openai"
+            assert kwargs["llm_api_key"] == "sk-test"
+
+    @pytest.mark.asyncio
+    async def test_blocks_when_llm_key_missing(self, tmp_path):
+        """E2 PR-D-c: LLM API キー未設定なら analyze_image を呼ばずエラー表示。"""
+        from textual.widgets import Input, Static
+
+        from iikanji_tui.config import Config
+        from iikanji_tui.screens.upload import UploadScreen
+        img = tmp_path / "receipt.jpg"
+        img.write_bytes(b"fake")
+
+        app, api = _make_app([])
+        config = Config(
+            api_url="https://test", access_token="t",
+            ai_provider="openai", openai_api_key="",  # 未設定
+        )
+        async with app.run_test() as pilot:
+            await pilot.pause()
+            await pilot.pause()
+            screen = UploadScreen(api, config=config)
+            await app.push_screen(screen)
+            await pilot.pause()
+            screen.query_one("#path", Input).value = str(img)
+            await pilot.pause()
+            screen.action_submit()
+            await pilot.pause()
+            err = screen.query_one("#error", Static)
+            assert "API キー" in str(err.render())
+            api.analyze_image.assert_not_called()
 
 
 class TestDetailScreen:

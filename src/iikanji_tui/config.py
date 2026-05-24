@@ -30,9 +30,25 @@ class Config:
     api_url: str = ""
     access_token: str = ""
     last_used_at: str = ""
+    # E2 PR-D-c: クライアント完結 AI 解析用の LLM API キー (オーナーがローカル保持)。
+    # サーバ E2EE blob はブラウザ SharedWorker でしか復号できないため、Python
+    # クライアントは LLM API キーを直接持つ。ai_provider で使用する provider を指定。
+    ai_provider: str = "openai"  # "openai" / "anthropic" / "google"
+    openai_api_key: str = ""
+    anthropic_api_key: str = ""
+    google_api_key: str = ""
 
     def is_authenticated(self) -> bool:
         return bool(self.api_url and self.access_token)
+
+    def has_ai_key(self) -> bool:
+        """ai_provider に対応する LLM API キーが設定されているか。"""
+        key_map = {
+            "openai": self.openai_api_key,
+            "anthropic": self.anthropic_api_key,
+            "google": self.google_api_key,
+        }
+        return bool(key_map.get(self.ai_provider))
 
 
 def load_config(path: Path | None = None) -> Config:
@@ -47,6 +63,10 @@ def load_config(path: Path | None = None) -> Config:
         api_url=str(data.get("api_url", "")),
         access_token=str(data.get("access_token", "")),
         last_used_at=str(data.get("last_used_at", "")),
+        ai_provider=str(data.get("ai_provider", "openai")),
+        openai_api_key=str(data.get("openai_api_key", "")),
+        anthropic_api_key=str(data.get("anthropic_api_key", "")),
+        google_api_key=str(data.get("google_api_key", "")),
     )
 
 

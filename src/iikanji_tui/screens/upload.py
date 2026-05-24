@@ -11,10 +11,13 @@ from textual.screen import ModalScreen
 from textual.widgets import Button, Input, Label, Static
 
 from iikanji_tui.api import APIClient, APIError
+from iikanji_tui.config import Config, load_config
 
 
 class UploadScreen(ModalScreen[dict | None]):
-    """画像パスとメモを入力 → /api/v1/ai/analyze 呼出"""
+    """E2 PR-D-c: 画像パスとメモを入力 → クライアント完結 E2EE フロー
+    (POST /api/v1/ai/uploads → クライアント側 LLM 呼出 →
+    PATCH /api/v1/ai/drafts/<id>/suggestions)。"""
 
     BINDINGS = [
         Binding("escape", "cancel", "キャンセル"),
@@ -36,9 +39,12 @@ class UploadScreen(ModalScreen[dict | None]):
     LoadingIndicator { height: 3; }
     """
 
-    def __init__(self, api: APIClient, **kwargs):
+    def __init__(self, api: APIClient, config: Config | None = None, **kwargs):
         super().__init__(**kwargs)
         self.api = api
+        # config 未指定なら ~/.config/iikanji/config.toml から load (caller への
+        # 波及回避)。テスト時に明示注入も可能。
+        self.config = config if config is not None else load_config()
         self._submitting = False
 
     def compose(self) -> ComposeResult:
@@ -56,6 +62,13 @@ class UploadScreen(ModalScreen[dict | None]):
     def action_cancel(self) -> None:
         self.dismiss(None)
 
+    def _get_llm_key(self) -> str:
+        return {
+            "openai": self.config.openai_api_key,
+            "anthropic": self.config.anthropic_api_key,
+            "google": self.config.google_api_key,
+        }.get(self.config.ai_provider, "")
+
     def action_submit(self) -> None:
         if self._submitting:
             return
@@ -67,11 +80,22 @@ class UploadScreen(ModalScreen[dict | None]):
         if not os.path.isfile(path):
             self._show_error(f"ファイルが見つかりません: {path}")
             return
+        llm_key = self._get_llm_key()
+        if not llm_key:
+            self._show_error(
+                f"{self.config.ai_provider} の API キーが未設定です。"
+                f"設定で AI provider と API キーを登録してください。",
+            )
+            return
         self._show_info("AI 解析中... (数秒〜数十秒)")
         self._show_error("")
         self._submitting = True
         try:
-            result = self.api.analyze_image(path, comment=comment)
+            result = self.api.analyze_image(
+                path, comment=comment,
+                provider=self.config.ai_provider,
+                llm_api_key=llm_key,
+            )
         except APIError as e:
             self._show_error(f"解析失敗: {e.message}")
             return

@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "iikanji-tui"
-version = "0.1.0"
-description = "TUI client for iikanji-kakeibo"
+version = "0.2.0"
+description = "TUI client for iikanji-kakeibo (DEPRECATED — v4.x 対応の最終版。v5.0 E2EE 化に伴い廃止、client-py を利用)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

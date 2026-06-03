@@ -15,10 +15,25 @@ from iikanji_tui.config import (
 )
 
 
+def _emit_deprecation_warning() -> None:
+    """v5.0 廃止予告を stderr に出力する (stdout/TUI 描画を汚さない)。
+
+    いいかんじ™家計簿 v5.0 の E2EE 化に伴い iikanji-tui は廃止。CLI クライアント
+    の E2EE 対応は client-py (iikanji パッケージ) に一本化される。
+    """
+    print(
+        "⚠️  iikanji-tui は廃止されました (DEPRECATED)。\n"
+        "    v5.0 (E2EE) 以降は動作しません。v4.x 系サーバー専用の最終版です。\n"
+        "    代替: client-py (https://github.com/nananek/iikanji-kakeibo-client-py)。",
+        file=sys.stderr,
+    )
+
+
 @click.group(invoke_without_command=True)
 @click.pass_context
 def main(ctx: click.Context) -> None:
-    """いいかんじ™家計簿 TUI クライアント"""
+    """いいかんじ™家計簿 TUI クライアント (DEPRECATED — client-py を利用)"""
+    _emit_deprecation_warning()
     if ctx.invoked_subcommand is None:
         ctx.invoke(run)
 

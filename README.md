@@ -1,5 +1,20 @@
 # iikanji-tui
 
+> ## ⚠️ DEPRECATED — このリポジトリは廃止されました
+>
+> **いいかんじ™家計簿 v5.0 の E2EE（エンドツーエンド暗号化）化に伴い、
+> `iikanji-tui` は廃止・アーカイブされました。**
+>
+> v5.0 以降、仕訳・証憑データはクライアント側でマスターキー暗号化されますが、
+> CLI クライアントの E2EE 対応は **`client-py`（[`iikanji`](https://github.com/nananek/iikanji-kakeibo-client-py) パッケージ）に一本化**します。
+> `iikanji-tui` は E2EE 移植を行いません（v4.x 系サーバーでのみ動作）。
+>
+> - 最終バージョン: **0.2.0**（v4.x 対応の最終版）
+> - 代替: **`client-py`** をライブラリとして利用してください
+>   （`unlock(passphrase)` で MK を解錠 → 仕訳 CRUD / AI 証憑 / エクスポート）
+>
+> 本リポジトリは read-only にアーカイブされています。
+
 [いいかんじ™家計簿](https://github.com/nananek/iikanji-kakeibo) の TUI クライアント。
 
 仕訳の閲覧・新規作成・複写・削除、AI 証憑解析、証憑の閲覧・改ざん検証までターミナル上で完結します。
